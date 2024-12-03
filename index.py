@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget,
-    QLineEdit, QPushButton, QHBoxLayout, QTabWidget, QCheckBox, QDialog, QFormLayout
+    QLineEdit, QPushButton, QHBoxLayout, QTabWidget, QMenu
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEngineProfile, QWebEngineSettings
 from PyQt5.QtCore import QUrl
@@ -208,65 +208,60 @@ class Browser(QMainWindow):
                 current_browser.setHtml("<h1>No bookmarks added</h1>")
 
     def open_settings(self):
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Settings")
-        layout = QFormLayout()
+        # Create a QMenu for dropdown
+        menu = QMenu(self)
 
-        # Permissions
-        location_checkbox = QCheckBox("Allow Location")
-        camera_checkbox = QCheckBox("Allow Camera")
-        microphone_checkbox = QCheckBox("Allow Microphone")
+        # Add actions to the menu
+        dark_mode_action = menu.addAction("Toggle Dark Mode")
+        music_action = menu.addAction("Enable/Disable Music")
+        video_action = menu.addAction("Enable/Disable Video")
+        
+        # Connect actions to functions
+        dark_mode_action.triggered.connect(lambda: self.toggle_theme(not self.dark_mode))
+        music_action.triggered.connect(self.toggle_music)
+        video_action.triggered.connect(self.toggle_video)
 
-        layout.addRow(location_checkbox)
-        layout.addRow(camera_checkbox)
-        layout.addRow(microphone_checkbox)
-
-        # Dark/Light Mode Toggle
-        theme_checkbox = QCheckBox("Enable Dark Mode")
-        theme_checkbox.setChecked(self.dark_mode)
-        theme_checkbox.stateChanged.connect(lambda: self.toggle_theme(theme_checkbox.isChecked()))
-        layout.addRow(theme_checkbox)
-
-        dialog.setLayout(layout)
-        dialog.exec()
+        # Show menu at the button's position
+        button = self.settings_button
+        menu.exec_(button.mapToGlobal(button.rect().bottomLeft()))
 
     def toggle_theme(self, dark_mode):
         self.dark_mode = dark_mode
         self.update_window_style()
 
+    def toggle_music(self):
+        # Placeholder for enabling/disabling music
+        print("Music toggled!")
+        # Add logic for enabling/disabling music
+
+    def toggle_video(self):
+        # Placeholder for enabling/disabling video
+        print("Video toggled!")
+        # Add logic for enabling/disabling video
+
     def update_window_style(self):
         self.setStyleSheet(f"""
             QMainWindow {{ background-color: {'#121212' if self.dark_mode else '#FFFFFF'}; }}
-            QTabWidget::pane {{ border: 1px solid #444; border-radius: 12px; }}
-            QTabBar::tab {{
-                background: {'#1E1E1E' if self.dark_mode else '#F0F0F0'};
-                color: {'#E0E0E0' if self.dark_mode else '#333'};
-                padding: 8px 16px;
-                border: 1px solid {'#444' if self.dark_mode else '#DDD'};
-            }}
-            QTabBar::tab:selected {{
-                background: {'#4CAF50' if self.dark_mode else '#D9F5E3'};
-                color: #FFFFFF;
-            }}
-        """)
-        self.update_url_bar_style()
-
-    def update_url_bar_style(self):
-        self.url_bar.setStyleSheet(f"""
-            QLineEdit {{
-                background-color: {'#1E1E1E' if self.dark_mode else '#F5F5F5'};
-                color: {'#E0E0E0' if self.dark_mode else '#000000'};
-                padding: 5px;
-                border: 1px solid {'#4CAF50' if self.dark_mode else '#CCC'};
-                border-radius: 10px;
-            }}
+            QTabWidget::pane {{ border: 1px solid {'#1c1c1c' if self.dark_mode else '#d6d6d6'}; }}
         """)
 
     def update_toolbar_style(self, toolbar):
         toolbar.setStyleSheet(f"""
             QWidget {{
-                background-color: {'#333' if self.dark_mode else '#F5F5F5'};
-                border: 1px solid {'#444' if self.dark_mode else '#CCC'};
+                background-color: {'#1c1c1c' if self.dark_mode else '#f2f2f2'};
+                border-bottom: 1px solid {'#333333' if self.dark_mode else '#d6d6d6'};
+            }}
+        """)
+
+    def update_url_bar_style(self):
+        self.url_bar.setStyleSheet(f"""
+            QLineEdit {{
+                background-color: {'#1f1f1f' if self.dark_mode else '#FFFFFF'};
+                color: {'#FFFFFF' if self.dark_mode else '#000000'};
+                border: 1px solid {'#444444' if self.dark_mode else '#CCCCCC'};
+                border-radius: 4px;
+                padding: 4px 8px;
+                font-size: 14px;
             }}
         """)
 
@@ -275,4 +270,4 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     browser = Browser()
     browser.show()
-    sys.exit(app.exec())
+    sys.exit(app.exec_())
